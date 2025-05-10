@@ -27,6 +27,18 @@ def webhook():
 
     return "OK"
 
+@app.route("/callback", methods=["POST"])
+def callback():
+    signature = request.headers["X-Line-Signature"]
+    body = request.get_data(as_text=True)
+
+    try:
+        handler.handle(body, signature)
+    except InvalidSignatureError:
+        abort(400)
+
+    return "OK"
+
 @handler.add(MessageEvent, message=TextMessage)
 def handle_message(event):
     thai_text = event.message.text
